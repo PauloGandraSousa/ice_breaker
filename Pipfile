@@ -9,6 +9,7 @@ python-dotenv = "*"
 langchain-openai = "*"
 beautifulsoup4 = "*"
 faiss-cpu = "*"
+pypdf = "*"
 
 [dev-packages]
 
