@@ -20,6 +20,7 @@ from langchain.chains import create_retrieval_chain
 
 load_dotenv()
 
+
 #
 # print out answer
 #
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     # output parser
     output_parser = StrOutputParser()
 
-    # setup the chain
+    # set up the chain
     chain = prompt | llm | output_parser
 
     # execute the chain
