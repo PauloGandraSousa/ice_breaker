@@ -30,11 +30,12 @@ def print_out(title, question, answer):
     print(answer)
     print("<<<<<<\n")
 
+
 #
 # main
 #
 if __name__ == "__main__":
-    print("Hello LangChain!")
+    print("Hello LangChain! : RAG from a web page")
     # print(os.getenv("TITLE"))
 
     question = "how can langsmith help with testing?"
