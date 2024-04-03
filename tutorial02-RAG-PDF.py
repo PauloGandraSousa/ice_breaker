@@ -48,7 +48,7 @@ class BusinessAnalystRagPdf:
         llm = ChatOpenAI()
         # llm.invoke(question)
 
-        # load additional documents using a web loader
+        # load additional documents using a PDF loader
         loader = PyPDFLoader(self.filename)
         pages = loader.load_and_split()
         # use a vector store and embeddings
