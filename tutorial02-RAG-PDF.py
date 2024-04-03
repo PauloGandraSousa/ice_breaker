@@ -21,9 +21,11 @@ from langchain_community.document_loaders import PyPDFLoader
 load_dotenv()
 
 
-class RagPdf:
-    def __init__(self, title):
+class BusinessAnalystRagPdf:
+    def __init__(self, title, filename):
         self.title = title
+        self.filename = filename
+        self.initialized = False
         self.retrieval_chain = None
 
     def print_out(self, question, answer):
@@ -34,6 +36,9 @@ class RagPdf:
         print("<<<<<<\n")
 
     def execute_query(self, question):
+        if not self.initialized:
+            self.set_up_rag_chain(self.filename)
+
         # execute the chain using RAG
         response = self.retrieval_chain.invoke({"input": question})
         answer = response["answer"]
@@ -77,8 +82,7 @@ if __name__ == "__main__":
     # print(os.getenv("TITLE"))
 
     # set up the chain
-    rag = RagPdf("RAG")
-    rag.set_up_rag_chain("docs/eCafeteria-RFP.pdf")
+    rag = BusinessAnalystRagPdf("BA (RAG)", "docs/eCafeteria-RFP.pdf")
 
     # query the document
     rag.execute_query("Please summarize the RFP.")
