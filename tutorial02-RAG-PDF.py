@@ -2,18 +2,16 @@
 # RAG from a PDF
 #
 # https://python.langchain.com/docs/get_started/quickstart
+# https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf
 #
 
 from dotenv import load_dotenv
-import os
 
-from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
 from langchain_openai import OpenAIEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from langchain_community.document_loaders import PyPDFLoader
@@ -45,13 +43,13 @@ class BusinessAnalystRagPdf:
         # print out answer
         self.print_out(question, answer)
 
-    def set_up_rag_chain(self, filename):
+    def set_up_rag_chain(self):
         # LLM
         llm = ChatOpenAI()
         # llm.invoke(question)
 
         # load additional documents using a web loader
-        loader = PyPDFLoader(filename)
+        loader = PyPDFLoader(self.filename)
         pages = loader.load_and_split()
         # use a vector store and embeddings
         embeddings = OpenAIEmbeddings()
