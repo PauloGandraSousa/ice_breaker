@@ -31,16 +31,7 @@ def print_out(title, question, answer):
     print("<<<<<<\n")
 
 
-#
-# main
-#
-if __name__ == "__main__":
-    print("Hello LangChain! : RAG from a web page")
-    # print(os.getenv("TITLE"))
-
-    # LLM
-    llm = ChatOpenAI()
-
+def load_documents():
     # load additional documents using a web loader
     loader = WebBaseLoader("https://docs.smith.langchain.com/user_guide")
     docs = loader.load()
@@ -48,10 +39,22 @@ if __name__ == "__main__":
     # prepare the documents
     text_splitter = RecursiveCharacterTextSplitter()
     documents = text_splitter.split_documents(docs)
+    return documents
 
-    # use a vector store and embeddings
+
+def test_retriever(retriever_chain):
+    # test the retriever chain
+    chat_history = [HumanMessage(content="Can LangSmith help test my LLM applications?"), AIMessage(content="Yes!")]
+    retriever_chain.invoke({
+        "chat_history": chat_history,
+        "input": "Tell me how"
+    })
+
+
+def set_up_retriever():
+    # use a vector store and embeddings for the external documents
     embeddings = OpenAIEmbeddings()
-    vector = FAISS.from_documents(documents, embeddings)
+    vector = FAISS.from_documents(load_documents(), embeddings)
     # create a retriever
     retriever = vector.as_retriever()
 
@@ -64,7 +67,10 @@ if __name__ == "__main__":
          "Given the above conversation, generate a search query to look up to get information relevant to the conversation")
     ])
     retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
+    return retriever_chain
 
+
+def set_up_retrieval_chain(retriever_chain):
     # Now that we have this new retriever, we can create a new chain to continue the conversation with these retrieved
     # documents in mind.
     prompt = ChatPromptTemplate.from_messages([
@@ -76,6 +82,26 @@ if __name__ == "__main__":
 
     # set up the retrieval chain
     retrieval_chain = create_retrieval_chain(retriever_chain, document_chain)
+    return retrieval_chain
+
+
+#
+# main
+#
+if __name__ == "__main__":
+    print("Hello LangChain! : RAG from a web page")
+    # print(os.getenv("TITLE"))
+
+    # set up LLM
+    llm = ChatOpenAI()
+    # set up retriever
+    retriever_chain = set_up_retriever()
+    # debug only! >>>
+    test_retriever(retriever_chain)
+    # <<<<
+
+    # set up retrieval chain
+    retrieval_chain = set_up_retrieval_chain(retriever_chain)
 
     #
     # execute the chain using RAG
