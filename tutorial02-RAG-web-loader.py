@@ -43,29 +43,6 @@ if __name__ == "__main__":
 
     # LLM
     llm = ChatOpenAI()
-    # llm.invoke("how can langsmith help with testing?")
-
-    # prompt
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are world class technical documentation writer."),
-        ("user", "{input}")
-    ])
-
-    # output parser
-    output_parser = StrOutputParser()
-
-    # set up the chain
-    chain = prompt | llm | output_parser
-
-    # execute the chain
-    answer = chain.invoke({"input": question})
-
-    # print out answer
-    print_out("LLM", question, answer)
-
-    #
-    # RAG
-    #
 
     # load additional documents using a web loader
     loader = WebBaseLoader("https://docs.smith.langchain.com/user_guide")
