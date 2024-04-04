@@ -44,10 +44,12 @@ if __name__ == "__main__":
     # llm.invoke("how can langsmith help with testing?")
 
     # prompt
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are world class technical documentation writer."),
-        ("user", "{input}")
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", "You are world class technical documentation writer."),
+            ("user", "{input}"),
+        ]
+    )
 
     # output parser
     output_parser = StrOutputParser()

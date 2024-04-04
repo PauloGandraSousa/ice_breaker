@@ -57,13 +57,15 @@ if __name__ == "__main__":
     vector = FAISS.from_documents(documents, embeddings)
 
     # set up the chain that takes a question and the retrieved documents and generates an answer
-    prompt = ChatPromptTemplate.from_template("""Answer the following question based only on the provided context:
+    prompt = ChatPromptTemplate.from_template(
+        """Answer the following question based only on the provided context:
 
     <context>
     {context}
     </context>
 
-    Question: {input}""")
+    Question: {input}"""
+    )
 
     document_chain = create_stuff_documents_chain(llm, prompt)
 
@@ -78,5 +80,3 @@ if __name__ == "__main__":
 
     # print out answer
     print_out("RAG", question, answer)
-
-

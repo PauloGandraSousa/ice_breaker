@@ -35,7 +35,8 @@ class BusinessAnalystRagPdf:
 
     def execute_query(self, question):
         if not self.initialized:
-            self.set_up_rag_chain(self.filename)
+            self.set_up_rag_chain()
+            self.initialized = True
 
         # execute the chain using RAG
         response = self.retrieval_chain.invoke({"input": question})
@@ -55,7 +56,8 @@ class BusinessAnalystRagPdf:
         embeddings = OpenAIEmbeddings()
         faiss_index = FAISS.from_documents(pages, embeddings)
         # set up the chain that takes a question and the retrieved documents and generates an answer
-        prompt = ChatPromptTemplate.from_template("""Assume you are a world class Business analyst that has received a 
+        prompt = ChatPromptTemplate.from_template(
+            """Assume you are a world class Business analyst that has received a 
         new RFP from one of your customers. Your main goal is to understand the RFP and construct the backlog for the 
         project.  
         Answer the following question based only on the provided context:
@@ -64,7 +66,8 @@ class BusinessAnalystRagPdf:
         {context}
         </context>
     
-        Question: {input}""")
+        Question: {input}"""
+        )
         document_chain = create_stuff_documents_chain(llm, prompt)
         # However, we want the documents to first come from the retriever we just set up. That way, we can use the
         # retriever to dynamically select the most relevant documents and pass those in for a given question.

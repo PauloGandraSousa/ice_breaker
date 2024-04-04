@@ -37,6 +37,7 @@ class BusinessAnalystRagPdf:
     def execute_query(self, question):
         if not self.initialized:
             self.set_up_rag_chain()
+            self.initialized = True
 
         # execute the chain using RAG
         response = self.retrieval_chain.invoke({"input": question})
@@ -56,7 +57,8 @@ class BusinessAnalystRagPdf:
         embeddings = OpenAIEmbeddings()
         faiss_index = FAISS.from_documents(pages, embeddings)
         # set up the chain that takes a question and the retrieved documents and generates an answer
-        prompt = ChatPromptTemplate.from_template("""Assume you are a world class Business analyst that works for a 
+        prompt = ChatPromptTemplate.from_template(
+            """Assume you are a world class Business analyst that works for a 
         software company building actuarial software. Your customers are insurance companies. You have received a set of 
         documents containing insurance product descriptions and rules. Your main goal is to understand those documents 
         and construct the backlog for the project. You need to understand what coverage the product offers as well as 
@@ -70,7 +72,8 @@ class BusinessAnalystRagPdf:
         {context}
         </context>
     
-        Question: {input}""")
+        Question: {input}"""
+        )
         document_chain = create_stuff_documents_chain(llm, prompt)
         # However, we want the documents to first come from the retriever we just set up. That way, we can use the
         # retriever to dynamically select the most relevant documents and pass those in for a given question.
@@ -90,6 +93,8 @@ if __name__ == "__main__":
 
     # query the document
     rag.execute_query("Please summarize the insurance product.")
-    rag.execute_query("Please identity the mandatory and optional coverage of the product.")
+    rag.execute_query(
+        "Please identity the mandatory and optional coverage of the product."
+    )
     rag.execute_query("Please identity the different coverage packages.")
     rag.execute_query("Please identity the capital limits of each coverage.")

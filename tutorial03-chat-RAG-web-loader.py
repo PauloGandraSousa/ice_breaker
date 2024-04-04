@@ -44,11 +44,11 @@ def load_documents():
 
 def test_retriever(retriever_chain):
     # test the retriever chain
-    chat_history = [HumanMessage(content="Can LangSmith help test my LLM applications?"), AIMessage(content="Yes!")]
-    retriever_chain.invoke({
-        "chat_history": chat_history,
-        "input": "Tell me how"
-    })
+    chat_history = [
+        HumanMessage(content="Can LangSmith help test my LLM applications?"),
+        AIMessage(content="Yes!"),
+    ]
+    retriever_chain.invoke({"chat_history": chat_history, "input": "Tell me how"})
 
 
 def set_up_retriever():
@@ -60,12 +60,16 @@ def set_up_retriever():
 
     # The retrieval method should take the whole history into account
     # First we need a prompt that we can pass into an LLM to generate this search query
-    prompt = ChatPromptTemplate.from_messages([
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("user", "{input}"),
-        ("user",
-         "Given the above conversation, generate a search query to look up to get information relevant to the conversation")
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("user", "{input}"),
+            (
+                "user",
+                "Given the above conversation, generate a search query to look up to get information relevant to the conversation",
+            ),
+        ]
+    )
     retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
     return retriever_chain
 
@@ -73,11 +77,16 @@ def set_up_retriever():
 def set_up_retrieval_chain(retriever_chain):
     # Now that we have this new retriever, we can create a new chain to continue the conversation with these retrieved
     # documents in mind.
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "Answer the user's questions based on the below context:\n\n{context}"),
-        MessagesPlaceholder(variable_name="chat_history"),
-        ("user", "{input}"),
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "Answer the user's questions based on the below context:\n\n{context}",
+            ),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("user", "{input}"),
+        ]
+    )
     document_chain = create_stuff_documents_chain(llm, prompt)
 
     # set up the retrieval chain
@@ -110,20 +119,15 @@ if __name__ == "__main__":
     # first question
     question = "Can LangSmith help test my LLM applications?"
     chat_history = []
-    response = retrieval_chain.invoke({
-        "chat_history": chat_history,
-        "input": question
-    })
+    response = retrieval_chain.invoke({"chat_history": chat_history, "input": question})
     answer = response["answer"]
     print_out("RAG", question, answer)
 
     # followup question
     followup_question = "Tell me how"
-    chat_history = [HumanMessage(content=question),
-                    AIMessage(content=answer)]
-    response = retrieval_chain.invoke({
-        "chat_history": chat_history,
-        "input": followup_question
-    })
+    chat_history = [HumanMessage(content=question), AIMessage(content=answer)]
+    response = retrieval_chain.invoke(
+        {"chat_history": chat_history, "input": followup_question}
+    )
     answer = response["answer"]
     print_out("RAG", followup_question, answer)

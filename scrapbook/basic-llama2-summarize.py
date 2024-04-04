@@ -24,10 +24,12 @@ In October 2002, eBay acquired PayPal for $1.5 billion, and that same year, with
     2. two interesting facts about them
     """
 
-    prompt = ChatPromptTemplate.from_messages([
-        ("system", "You are world class economics writer."),
-        ("user", summary_template)
-    ])
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", "You are world class economics writer."),
+            ("user", summary_template),
+        ]
+    )
 
     llm = Ollama(model="llama2")
     # res = llm.invoke("how can langsmith help with testing?")
