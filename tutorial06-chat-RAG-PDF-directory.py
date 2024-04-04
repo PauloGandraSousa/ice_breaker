@@ -27,17 +27,19 @@ class ChatUI:
     def __init__(self, title, bot):
         self.title = title
         self.bot = bot
-        self.count = 1
+        self.count = 0
         print(f"\n=== {self.title} ===\n")
 
     def print_out(self, question, answer):
-        print(f"Q# {self.count}. {question}")
         print(">>>>>>")
+        print(f"Q {self.count}. {question}")
+        print("------")
         print(answer)
         print("<<<<<<\n")
 
     def ask(self, question):
         answer = bot.ask(question)
+        self.count=self.count+1
         self.print_out(question, answer)
 
 
@@ -157,6 +159,9 @@ if __name__ == "__main__":
 
     # query the document
     ui.ask("Please summarize the insurance product.")
-    ui.ask("Please identity the mandatory and optional coverage of the product.")
-    ui.ask("Please identity the different coverage packages.")
+    ui.ask("Which are the mandatory and optional coverage of the product?")
+    ui.ask("What are the exclusions of the first coverage?")
+    ui.ask("Please tell me more about the third coverage you mentioned above.")
+    ui.ask("Can I insure my Cesena 900?")
+    ui.ask("Please identity all the different coverage packages.")
     ui.ask("Please identity the capital limits of each coverage.")
