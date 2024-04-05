@@ -38,8 +38,8 @@ class ChatUI:
         print("<<<<<<\n")
 
     def ask(self, question):
-        answer = bot.ask(question)
-        self.count=self.count+1
+        answer = bot.chat(question)
+        self.count = self.count + 1
         self.print_out(question, answer)
 
 
@@ -50,7 +50,7 @@ class ConversationalBusinessAnalystRagPdf:
         self.retrieval_chain = None
         self.chat_history = []
 
-    def ask(self, question):
+    def chat(self, question):
         if not self.initialized:
             self.set_up_rag_chain()
             self.initialized = True
@@ -70,20 +70,20 @@ class ConversationalBusinessAnalystRagPdf:
     def set_up_retriever(self, llm, documents):
         # use a vector store and embeddings for the external documents
         embeddings = OpenAIEmbeddings()
-        vector = FAISS.from_documents(documents, embeddings)
+        vector_store = FAISS.from_documents(documents, embeddings)
         # create a retriever
-        retriever = vector.as_retriever()
+        retriever = vector_store.as_retriever()
 
         # The retrieval method should take the whole history into account
         # First we need a prompt that we can pass into an LLM to generate this search query
+        contextualize_q_system_prompt = """Given a chat history and the latest user question which might reference 
+        context in the chat history, generate a search query to look up to get information relevant to the 
+        conversation."""
         prompt = ChatPromptTemplate.from_messages(
             [
                 MessagesPlaceholder(variable_name="chat_history"),
                 ("user", "{input}"),
-                (
-                    "user",
-                    "Given the above conversation, generate a search query to look up to get information relevant to the conversation",
-                ),
+                ("user", contextualize_q_system_prompt),
             ]
         )
         retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
@@ -103,19 +103,19 @@ class ConversationalBusinessAnalystRagPdf:
     def set_up_retrieval_chain(self, llm, retriever_chain):
         # Now that we have this new retriever, we can create a new chain to continue the conversation with these retrieved
         # documents in mind.
-        system_prompt = """Assume you are a world class Business analyst that works for a 
-software company building actuarial software. Your customers are insurance companies. You have received a set of 
-documents containing insurance product descriptions and rules. Your main goal is to understand those documents 
-and construct the backlog for the project. You need to understand what coverage the product offers as well as 
-the limits, exclusions, and co-payments for each coverage. It is also important to understand the different 
-coverage packages the company wants to have and if the coverage is mandatory or not in that package. Another area 
-you need to pay attention is the business rules for premium calculation - which premium should the customer pay 
-for each coverage and which tariffication tables to use for the calculation.
-Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you 
-don't know. 
+        system_prompt = """You are an assistant for question-answering tasks. Assume you are a world class Business 
+        analyst that works for a software company building actuarial software. Your customers are insurance companies. 
+        You have received a set of documents containing insurance product descriptions and rules. Your main goal is to 
+        understand those documents and construct the backlog for the project. You need to understand what coverage the 
+        product offers as well as the limits, exclusions, and co-payments for each coverage. It is also important to 
+        understand the different coverage packages the company wants to have and if the coverage is mandatory or not in 
+        that package. Another area you need to pay attention is the business rules for premium calculation - which 
+        premium should the customer pay for each coverage and which tariffication tables to use for the calculation. Use
+         the following pieces of retrieved context to answer the question. If you don't know the answer, just say that 
+         you don't know. 
 
 
-{context}"""
+        Context: {context}"""
         prompt = ChatPromptTemplate.from_messages(
             [
                 ("system", system_prompt),
