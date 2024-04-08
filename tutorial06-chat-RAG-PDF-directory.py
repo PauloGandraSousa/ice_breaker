@@ -101,8 +101,8 @@ class ConversationalBusinessAnalystRagPdf:
         print(f"\nDEBUG: {res}\n")
 
     def set_up_retrieval_chain(self, llm, retriever_chain):
-        # Now that we have this new retriever, we can create a new chain to continue the conversation with these retrieved
-        # documents in mind.
+        # Now that we have this new retriever, we can create a new chain to continue the conversation with these
+        # retrieved documents in mind.
         system_prompt = """You are an assistant for question-answering tasks. Assume you are a world class Business 
         analyst that works for a software company building actuarial software. Your customers are insurance companies. 
         You have received a set of documents containing insurance product descriptions and rules. Your main goal is to 
