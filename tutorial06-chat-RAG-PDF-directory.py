@@ -162,6 +162,8 @@ if __name__ == "__main__":
     ui.ask("Which are the mandatory and optional coverage of the product?")
     ui.ask("What are the exclusions of the first coverage?")
     ui.ask("Please tell me more about the third coverage you mentioned above.")
-    ui.ask("Can I insure my Cesena 900?")
+    ui.ask("Can I insure my Cessna Citation Latitude?")
     ui.ask("Please identity all the different coverage packages.")
     ui.ask("Please identity the capital limits of each coverage.")
+
+    print("=== end of conversation ===")
