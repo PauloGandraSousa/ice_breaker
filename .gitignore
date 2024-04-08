@@ -185,7 +185,7 @@ cmake-build-*/
 
 # IntelliJ
 out/
-.idea
+.idea/
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -676,4 +676,4 @@ MigrationBackup/
 .ionide/
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,pycharm,vs
-/docs/examples/MM/motor/
+docs/examples/MM/motor/
