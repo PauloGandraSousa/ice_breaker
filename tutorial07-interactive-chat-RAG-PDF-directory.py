@@ -30,24 +30,28 @@ class ChatUI:
         self.count = 0
         print(f"\n=== {self.title} ===\n")
 
-    def answer_and_print(self, question):
+    def __answer_and_print(self, question):
         answer = bot.chat(question)
-        print(">>>>>>")
+        self.__ai_prompt(answer)
+
+    def __ai_prompt(self, answer):
+        print(f"A {self.count}: >>>")
         print(answer)
-        print("<<<<<<\n")
+        print(f"<<< (A {self.count})\n")
 
     def interactive(self):
         print("How may I assist you today? (enter 'quit' to end or 'standard' for the set of predefined questions)\n")
-        question = self.read_question()
+        question = self.__read_question()
         while question != "end":
             if question == 'standard':
                 self.ask_standard_questions()
             else:
-                self.answer_and_print(question)
-            question = self.read_question()
+                self.__answer_and_print(question)
+            question = self.__read_question()
+        print("\nIt has been a pleasure helping you. Come back soon.")
         print("=== end of conversation ===")
 
-    def read_question(self):
+    def __read_question(self):
         self.count = self.count + 1
         question = input(f"Q {self.count}: ")
         return question
@@ -55,31 +59,31 @@ class ChatUI:
     def ask(self, question):
         self.count = self.count + 1
         print(f"Q {self.count}. {question}")
-        self.answer_and_print(question)
+        self.__answer_and_print(question)
 
     def ask_standard_questions(self):
         standard_questions = ["Please summarize the insurance product.",
-                              "Please identity all the different coverage packages.",
+                              "Please identify all the different coverage packages.",
                               "Which are the mandatory and optional coverage of the package?",
                               "What are the exclusions of each coverage?",
-                              "Please identity the capital limits of each coverage."]
+                              "Please identify the capital limits of each coverage."]
         [self.ask(q) for q in standard_questions]
 
 
 class ConversationalBusinessAnalystRagPdf:
     def __init__(self, directory):
-        self.directory = directory
-        self.initialized = False
-        self.retrieval_chain = None
+        self.__directory = directory
+        self.__initialized = False
+        self.__retrieval_chain = None
         self.chat_history = []
 
     def chat(self, question):
-        if not self.initialized:
-            self.set_up_rag_chain()
-            self.initialized = True
+        if not self.__initialized:
+            self.__set_up_rag_chain()
+            self.__initialized = True
 
         # execute the chain using RAG
-        response = self.retrieval_chain.invoke(
+        response = self.__retrieval_chain.invoke(
             {"chat_history": self.chat_history, "input": question}
         )
         answer = response["answer"]
@@ -90,7 +94,7 @@ class ConversationalBusinessAnalystRagPdf:
 
         return answer
 
-    def set_up_retriever(self, llm, documents):
+    def __set_up_retriever(self, llm, documents):
         # use a vector store and embeddings for the external documents
         embeddings = OpenAIEmbeddings()
         vector_store = FAISS.from_documents(documents, embeddings)
@@ -112,7 +116,7 @@ class ConversationalBusinessAnalystRagPdf:
         retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
         return retriever_chain
 
-    def test_retriever(self, retriever_chain):
+    def __test_retriever(self, retriever_chain):
         # test the retriever chain
         chat_history = [
             HumanMessage(content="Does the product cover theft?"),
@@ -123,7 +127,7 @@ class ConversationalBusinessAnalystRagPdf:
         )
         print(f"\nDEBUG: {res}\n")
 
-    def set_up_retrieval_chain(self, llm, retriever_chain):
+    def __set_up_retrieval_chain(self, llm, retriever_chain):
         # Now that we have this new retriever, we can create a new chain to continue the conversation with these
         # retrieved documents in mind.
         system_prompt = """You are an assistant for question-answering tasks. Assume you are a world class Business 
@@ -152,19 +156,22 @@ class ConversationalBusinessAnalystRagPdf:
         retrieval_chain = create_retrieval_chain(retriever_chain, document_chain)
         return retrieval_chain
 
-    def set_up_rag_chain(self):
+    def __set_up_rag_chain(self):
         # LLM
         llm = ChatOpenAI()
-
-        # load additional documents from a directory using a PDF loader
-        loader = PyPDFDirectoryLoader(self.directory)
-        pages = loader.load()
-
+        # load documents for RAG
+        pages = self.__load_documents()
         # set up retriever
-        retriever_chain = self.set_up_retriever(llm, pages)
-
+        retriever_chain = self.__set_up_retriever(llm, pages)
         # set up retrieval chain
-        self.retrieval_chain = self.set_up_retrieval_chain(llm, retriever_chain)
+        self.__retrieval_chain = self.__set_up_retrieval_chain(llm, retriever_chain)
+
+    def __load_documents(self):
+        # load additional documents from a directory using a PDF loader
+        loader = PyPDFDirectoryLoader(self.__directory)
+        pages = loader.load()
+        # TODO load other documents in other formats
+        return pages
 
 
 #
@@ -181,13 +188,4 @@ if __name__ == "__main__":
     ui = ChatUI("BA (RAG)", bot)
 
     # query the document
-    '''
-    ui.ask("Please summarize the insurance product.")
-    ui.ask("Which are the mandatory and optional coverage of the product?")
-    ui.ask("What are the exclusions of the first coverage?")
-    ui.ask("Please tell me more about the third coverage you mentioned above.")
-    ui.ask("Can I insure my Cessna Citation Latitude?")
-    ui.ask("Please identity all the different coverage packages.")
-    ui.ask("Please identity the capital limits of each coverage.")
-    '''
     ui.interactive()
