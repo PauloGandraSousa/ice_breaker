@@ -17,6 +17,7 @@ pandoc = "*"
 pdf2image = "*"
 tesseract = "*"
 unstructured = {extras = ["local-inference"], version = "*"}
+python-magic-bin = "*"
 
 [dev-packages]
 
