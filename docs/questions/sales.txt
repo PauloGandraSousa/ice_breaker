@@ -1,0 +1,5 @@
+which product lines do we sell?
+who is our oldest customer?
+who is our biggest customer?
+which product line did we sell more in 2008?
+and in 2009?
