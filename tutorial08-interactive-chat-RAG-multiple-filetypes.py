@@ -7,15 +7,16 @@
 # https://python.langchain.com/docs/use_cases/question_answering/chat_history
 # https://betterprogramming.pub/building-a-multi-document-reader-and-chatbot-with-langchain-and-chatgpt-d1864d47e339
 #
+#
 # In order to use the 'unstructured' package a couple of system dependencies are needed,
 # check the dependencies listed at https://pypi.org/project/unstructured/
+# check also https://unstructured-io.github.io/unstructured/installation/full_installation.htm
 # namely (it seems) you'll need to install the following on your machine:
 #   - Microsoft C++ Build Tools: https://visualstudio.microsoft.com/visual-cpp-build-tools/
 #   - Tesseract OCR: https://github.com/tesseract-ocr/tesseract
 #   - Pandoc: https://github.com/jgm/pandoc/releases/
 #   - Poppler: https://github.com/oschwartz10612/poppler-windows/releases
-#
-#  you might need to add the location of the DLL files for these libraries into your PATH environment variable
+#  you will need to add the location of the DLL files for these libraries into your PATH environment variable
 #
 import os
 
@@ -96,16 +97,16 @@ class ChatUI:
 
 
 class ConversationalBusinessAnalystRag:
-    def __init__(self, directory):
+    def __init__(self, directory, load_now=False):
         self.__directory = directory
-        self.__initialized = False
         self.__retrieval_chain = None
         self.chat_history = []
+        if load_now:
+            self.__set_up_rag_chain()
 
     def chat(self, question):
-        if not self.__initialized:
+        if not self.__is_initialized():
             self.__set_up_rag_chain()
-            self.__initialized = True
 
         # execute the chain using RAG
         response = self.__retrieval_chain.invoke(
@@ -191,23 +192,27 @@ class ConversationalBusinessAnalystRag:
         # set up retrieval chain
         self.__retrieval_chain = self.__set_up_retrieval_chain(llm, retriever_chain)
 
-    def __load_documents(self):
+    def __is_initialized(self):
+        return self.__retrieval_chain != None
+
+    def __load_documents_pdf_directory(self):
         # load documents from a directory using a PDF loader
         loader = PyPDFDirectoryLoader(self.__directory)
         pages = loader.load()
         return pages
 
-    def __load_documents_to_be(self):
-        # TODO this method is not yet used. it will handle the files in different formats
-
+    def __load_documents(self):
         # load additional documents from a directory using the appropriate loader
-        # we might need to check the performance and accuracy of each loader. The 'unstructured' package is able to load
-        # all of these file types, so we might use just the 'unstructured' loader for all file types.
         documents = []
         for file in os.listdir(self.__directory):
             loader = self.__build_loader(file)
             if loader:
                 documents.extend(loader.load())
+                # debug
+                print(f"INFO: loaded document {file}")
+            else:
+                # debug
+                print(f"WARN: ignored document {file}")
 
         # we split the data into chunks of 1,000 characters, with an overlap of 200 characters between the chunks,
         # which helps to give better results and contain the context of the information between chunks
@@ -217,6 +222,8 @@ class ConversationalBusinessAnalystRag:
         return chunked_documents
 
     def __build_loader(self, file):
+        # we might need to check the performance and accuracy of each loader. The 'unstructured' package is able to load
+        # all of these file types, so we might use just the 'UnstructuredFileLoader' loader for all file types.
         doc_path = os.path.join(self.__directory, file)
         loader = None
         if file.endswith(".pdf"):
@@ -241,7 +248,6 @@ class ConversationalBusinessAnalystRag:
             loader = Docx2txtLoader(doc_path)
         elif file.endswith(".txt"):
             loader = TextLoader(doc_path)
-        # TODO should we raise some kind of warning if we could not load a file?
         return loader
 
 
@@ -278,7 +284,7 @@ if __name__ == "__main__":
     standard_questions = read_standard_questions()
 
     # set up the chain
-    bot = ConversationalBusinessAnalystRag(folder)
+    bot = ConversationalBusinessAnalystRag(folder, load_now=True)
 
     # minimal UI
     ui = ChatUI("BA (RAG)", bot, standard_questions)

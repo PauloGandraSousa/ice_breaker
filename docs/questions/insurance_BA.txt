@@ -1,6 +1,6 @@
 Please summarize the insurance product.
 What is the insurance object type for each product?
-what type of risks are covered?
+What type of risks are covered?
 Please tell me the name of all the different coverage packages (i.,e., commercial offers or modalities).
 Please tell me the name of all the different covers and to which coverage package they belong.
 Which are the mandatory and optional coverage of the package?

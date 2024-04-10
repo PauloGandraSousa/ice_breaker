@@ -18,6 +18,7 @@ pdf2image = "*"
 tesseract = "*"
 unstructured = {extras = ["local-inference"], version = "*"}
 python-magic-bin = "*"
+docx2txt = "*"
 
 [dev-packages]
 

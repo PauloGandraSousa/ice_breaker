@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "87aa51adeb7ed10a82f8cfef8e342bea9059dfa7e57f75d12c5af09d19824f83"
+            "sha256": "b120091f27a48f53d7610051ec221f9fe0a9fef8c5941828d8a382e2e5202183"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -504,6 +504,13 @@
             ],
             "markers": "python_version >= '3.6'",
             "version": "==1.9.0"
+        },
+        "docx2txt": {
+            "hashes": [
+                "sha256:2c06d98d7cfe2d3947e5760a57d924e3ff07745b379c8737723922e7009236e5"
+            ],
+            "index": "pypi",
+            "version": "==0.8"
         },
         "effdet": {
             "hashes": [
