@@ -1,0 +1,8 @@
+Please summarize the insurance product.
+What is the insurance object type for each product?
+what type of risks are covered?
+Please tell me the name of all the different coverage packages (i.,e., commercial offers or modalities).
+Please tell me the name of all the different covers and to which coverage package they belong.
+Which are the mandatory and optional coverage of the package?
+For each coverage please tell me it's name, capital limits, exclusions (if any), copayment (if any), deductible (if any) as well as any bonus/malus conditions and waiting period (if any)
+Can I insure my Cessna Citation Latitude?

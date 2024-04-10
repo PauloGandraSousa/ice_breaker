@@ -1,0 +1,4 @@
+What are the main concepts of DDD?
+Please explain which are cares should be taken when identifying your aggregates?
+What is the difference between an Entity and a Value Object?
+Can I share an Entity between two different aggregates?

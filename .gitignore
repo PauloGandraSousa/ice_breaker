@@ -677,3 +677,4 @@ MigrationBackup/
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,pycharm,vs
 docs/examples/MM/motor/
+/docs/examples/MM/motor-spec-msg/

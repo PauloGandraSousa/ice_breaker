@@ -1,13 +1,29 @@
 #
-# Conversational RAG from a directory with several PDF files
+# Conversational RAG from a directory with several files of different formats
 #
 # https://python.langchain.com/docs/get_started/quickstart
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf
+# https://python.langchain.com/docs/integrations/document_loaders/microsoft_excel/
 # https://python.langchain.com/docs/use_cases/question_answering/chat_history
+# https://betterprogramming.pub/building-a-multi-document-reader-and-chatbot-with-langchain-and-chatgpt-d1864d47e339
 #
+# In order to use the 'unstructured' package a couple of system dependencies are needed,
+# check the dependencies listed at https://pypi.org/project/unstructured/
+# namely (it seems) you'll need to install the following on your machine:
+#   - Microsoft C++ Build Tools: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+#   - Tesseract OCR: https://github.com/tesseract-ocr/tesseract
+#   - Pandoc: https://github.com/jgm/pandoc/releases/
+#   - Poppler: https://github.com/oschwartz10612/poppler-windows/releases
+#
+#  you might need to add the location of the DLL files for these libraries into your PATH environment variable
+#
+import os
 
 from dotenv import load_dotenv
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
+from langchain_community.document_loaders.csv_loader import CSVLoader
+from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
+from langchain_community.document_loaders.powerpoint import UnstructuredPowerPointLoader
 from langchain_core.messages import HumanMessage, AIMessage
 
 from langchain_openai import ChatOpenAI
@@ -18,16 +34,20 @@ from langchain_community.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import Docx2txtLoader
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import CharacterTextSplitter
+from langchain_community.document_loaders import UnstructuredExcelLoader
 
 load_dotenv()
 
 
 class ChatUI:
-    def __init__(self, title, bot):
+    def __init__(self, title, bot, standard_questions):
         self.title = title
+        self.standard_questions = standard_questions
         self.bot = bot
-        self.count = 0
+        self.__count = 0
         print(f"\n=== {self.title} ===\n")
 
     def __answer_and_print(self, question):
@@ -35,9 +55,8 @@ class ChatUI:
         self.__ai_prompt(answer)
 
     def __ai_prompt(self, answer):
-        print(f"A {self.count}: >>>")
+        print(f"A {self.__count}:")
         print(answer)
-        print(f"<<< (A {self.count})\n")
 
     def interactive(self):
         print(
@@ -49,37 +68,34 @@ class ChatUI:
                 self.ask_standard_questions()
             else:
                 self.__answer_and_print(question)
+                self.print_frame()
             question = self.__read_question()
         print("\nIt has been a pleasure helping you. Come back soon.")
         print("=== end of conversation ===")
 
+    def print_frame(self):
+        print("+------------------------------------------------------+")
+
     def __read_question(self):
-        self.count = self.count + 1
-        question = input(f"Q {self.count}: ")
+        self.__count = self.__count + 1
+        self.print_frame()
+        question = input(f"Q {self.__count}: ")
         return question
 
     def ask(self, question):
-        self.count = self.count + 1
-        print(f"Q {self.count}. {question}")
+        self.__count = self.__count + 1
+        self.print_frame()
+        print(f"Q {self.__count}. {question}")
         self.__answer_and_print(question)
+        self.print_frame()
 
     def ask_standard_questions(self):
-        standard_questions = [
-            "Please summarize the insurance product.",
-            "What is the insurance object type for each product?",
-            "what type of risks are covered?",
-            "Please tell me the name of all the different coverage packages (i.,e., commercial offers or modalities).",
-            "Please tell me the name of all the different covers and to which coverage package they belong.",
-            "Which are the mandatory and optional coverage of the package?",
-            "For each coverage please tell me it's name, capital limits, exclusions (if any), copayment (if any), deductible (if any) as well as any bonus/malus conditions and waiting period (if any)",
-            "Can I insure my Cessna Citation Latitude?",
-        ]
-        print("-- start of standard questions --")
-        [self.ask(q) for q in standard_questions]
-        print("-- end of standard questions --")
+        print("<standard-questions>")
+        [self.ask(q) for q in self.standard_questions]
+        print("</standard-questions>")
 
 
-class ConversationalBusinessAnalystRagPdf:
+class ConversationalBusinessAnalystRag:
     def __init__(self, directory):
         self.__directory = directory
         self.__initialized = False
@@ -147,8 +163,8 @@ class ConversationalBusinessAnalystRagPdf:
         understand the different coverage packages the company wants to have and if the coverage is mandatory or not in 
         that package. Another area you need to pay attention is the business rules for premium calculation - which 
         premium should the customer pay for each coverage and which tariffication tables to use for the calculation. Use
-         the following pieces of retrieved context to answer the question. If you don't know the answer, just say that 
-         you don't know. 
+        the following pieces of retrieved context to answer the question. If you don't know the answer, just say that 
+        you don't know. 
 
 
         Context: {context}"""
@@ -176,25 +192,96 @@ class ConversationalBusinessAnalystRagPdf:
         self.__retrieval_chain = self.__set_up_retrieval_chain(llm, retriever_chain)
 
     def __load_documents(self):
-        # load additional documents from a directory using a PDF loader
+        # load documents from a directory using a PDF loader
         loader = PyPDFDirectoryLoader(self.__directory)
         pages = loader.load()
-        # TODO load other documents in other formats
         return pages
+
+    def __load_documents_to_be(self):
+        # TODO this method is not yet used. it will handle the files in different formats
+
+        # load additional documents from a directory using the appropriate loader
+        # we might need to check the performance and accuracy of each loader. The 'unstructured' package is able to load
+        # all of these file types, so we might use just the 'unstructured' loader for all file types.
+        documents = []
+        for file in os.listdir(self.__directory):
+            loader = self.__build_loader(file)
+            if loader:
+                documents.extend(loader.load())
+
+        # we split the data into chunks of 1,000 characters, with an overlap of 200 characters between the chunks,
+        # which helps to give better results and contain the context of the information between chunks
+        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=10)
+        chunked_documents = text_splitter.split_documents(documents)
+
+        return chunked_documents
+
+    def __build_loader(self, file):
+        doc_path = os.path.join(self.__directory, file)
+        loader = None
+        if file.endswith(".pdf"):
+            loader = PyPDFLoader(doc_path)
+        elif file.endswith(".xlsx") or file.endswith(".xls"):
+            loader = UnstructuredExcelLoader(doc_path, mode="elements")
+        elif file.endswith(".csv"):
+            loader = CSVLoader(file_path=doc_path)
+            """
+            loader = CSVLoader(
+                file_path="./example_data/mlb_teams_2012.csv",
+                csv_args={
+                    "delimiter": ",",
+                    "quotechar": '"',
+                    "fieldnames": ["MLB Team", "Payroll in millions", "Wins"],
+                },
+            )
+            """
+        elif file.endswith(".pptx") or file.endswith(".ppt"):
+            loader = UnstructuredPowerPointLoader(doc_path, mode="elements")
+        elif file.endswith(".docx") or file.endswith(".doc"):
+            loader = Docx2txtLoader(doc_path)
+        elif file.endswith(".txt"):
+            loader = TextLoader(doc_path)
+        # TODO should we raise some kind of warning if we could not load a file?
+        return loader
 
 
 #
 # main
 #
+def read_standard_questions():
+    print(
+        "Which file contains the standard questions to query the documents (e.g., docs/questions/ddd.txt)?"
+    )
+    filename = input("(enter for default)")
+    if filename == "":
+        filename = "docs/questions/insurance_BA.txt"
+    f = open(filename, "r")
+    return f.readlines()
+
+
+def read_folder():
+    print(
+        "Which directory would you like to load files from (e.g., docs/examples/DDD)?"
+    )
+    folder = input("(enter for default)")
+    if folder == "":
+        folder = "docs/examples/MM/motor"
+    return folder
+
+
 if __name__ == "__main__":
-    print("LangChain! : ChatBot RAG from a directory of PDF files")
+    print("LangChain! : ChatBot RAG from a directory of files")
     # print(os.getenv("TITLE"))
 
+    # input "parameters"
+    folder = read_folder()
+    standard_questions = read_standard_questions()
+
     # set up the chain
-    bot = ConversationalBusinessAnalystRagPdf("docs/examples/MM/motor/")
+    bot = ConversationalBusinessAnalystRag(folder)
 
     # minimal UI
-    ui = ChatUI("BA (RAG)", bot)
+    ui = ChatUI("BA (RAG)", bot, standard_questions)
 
     # query the document
     ui.interactive()

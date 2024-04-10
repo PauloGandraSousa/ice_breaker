@@ -83,7 +83,9 @@ if __name__ == "__main__":
     # print(os.getenv("TITLE"))
 
     # set up the chain
-    rag = BusinessAnalystRagPdf("BA (RAG)", "docs/eCafeteria-RFP.pdf")
+    rag = BusinessAnalystRagPdf(
+        "BA (RAG)", "docs/examples/ecafeteria/eCafeteria-RFP.pdf"
+    )
 
     # query the document
     rag.execute_query("Please summarize the RFP.")

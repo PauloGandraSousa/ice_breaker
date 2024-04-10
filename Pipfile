@@ -11,9 +11,15 @@ langchain-openai = "*"
 beautifulsoup4 = "*"
 faiss-cpu = "*"
 pypdf = "*"
+libmagic = "*"
+poppler-utils = "*"
+pandoc = "*"
+pdf2image = "*"
+tesseract = "*"
+unstructured = {extras = ["local-inference"], version = "*"}
 
 [dev-packages]
 
 [requires]
-python_version = "3.12"
-python_full_version = "3.12.2"
+python_version = "3.10"
+python_full_version = "3.10.14"
