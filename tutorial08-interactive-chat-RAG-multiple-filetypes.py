@@ -1,11 +1,16 @@
 #
-# Conversational RAG from a directory with several files of different formats
+# LangChain tutorial
+# step 8: Conversational Bot with minimal interactive UI, with chat history and RAG
+#         RAG from a directory with several files of different formats
+#         folders, set of standard questions and system prompt can be entered as runtime program arguments
+#
 #
 # https://python.langchain.com/docs/get_started/quickstart
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf
 # https://python.langchain.com/docs/integrations/document_loaders/microsoft_excel/
 # https://python.langchain.com/docs/use_cases/question_answering/chat_history
 # https://betterprogramming.pub/building-a-multi-document-reader-and-chatbot-with-langchain-and-chatgpt-d1864d47e339
+#
 #
 #
 # In order to use the 'unstructured' package a couple of system dependencies are needed,
@@ -19,26 +24,25 @@
 #  you will need to add the location of the DLL files for these libraries into your PATH environment variable
 #
 import os
-
+import sys
 from dotenv import load_dotenv
-from langchain.chains.history_aware_retriever import create_history_aware_retriever
-from langchain_community.document_loaders.csv_loader import CSVLoader
-from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
-from langchain_community.document_loaders.powerpoint import UnstructuredPowerPointLoader
-from langchain_core.messages import HumanMessage, AIMessage
-
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-
-from langchain_openai import OpenAIEmbeddings
-from langchain_community.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
+from langchain.chains.history_aware_retriever import create_history_aware_retriever
+from langchain_core.messages import HumanMessage, AIMessage
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_text_splitters import CharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.document_loaders import Docx2txtLoader
 from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import CharacterTextSplitter
 from langchain_community.document_loaders import UnstructuredExcelLoader
+from langchain_community.document_loaders.csv_loader import CSVLoader
+from langchain_community.document_loaders.pdf import PyPDFDirectoryLoader
+from langchain_community.document_loaders.powerpoint import UnstructuredPowerPointLoader
+
 
 load_dotenv()
 
@@ -96,8 +100,9 @@ class ChatUI:
 
 
 class ConversationalBusinessAnalystRag:
-    def __init__(self, directory, load_now=False):
+    def __init__(self, system_context, directory, load_now=False):
         self.__directory = directory
+        self.__system_context = system_context
         self.__retrieval_chain = None
         self.chat_history = []
         if load_now:
@@ -155,22 +160,9 @@ class ConversationalBusinessAnalystRag:
     def __set_up_retrieval_chain(self, llm, retriever_chain):
         # Now that we have this new retriever, we can create a new chain to continue the conversation with these
         # retrieved documents in mind.
-        system_prompt = """You are an assistant for question-answering tasks. Assume you are a world class Business 
-        analyst that works for a software company building actuarial software. Your customers are insurance companies. 
-        You have received a set of documents containing insurance product descriptions and rules. Your main goal is to 
-        understand those documents and construct the backlog for the project. You need to understand what coverage the 
-        product offers as well as the limits, exclusions, and co-payments for each coverage. It is also important to 
-        understand the different coverage packages the company wants to have and if the coverage is mandatory or not in 
-        that package. Another area you need to pay attention is the business rules for premium calculation - which 
-        premium should the customer pay for each coverage and which tariffication tables to use for the calculation. Use
-        the following pieces of retrieved context to answer the question. If you don't know the answer, just say that 
-        you don't know. 
-
-
-        Context: {context}"""
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", system_prompt),
+                ("system", self.__system_context),
                 MessagesPlaceholder(variable_name="chat_history"),
                 ("user", "{input}"),
             ]
@@ -254,24 +246,35 @@ class ConversationalBusinessAnalystRag:
 # main
 #
 def read_standard_questions():
-    print(
-        "Which file contains the standard questions to query the documents (e.g., docs/questions/ddd.txt)?"
-    )
-    filename = input("(enter for default)")
-    if filename == "":
-        filename = "docs/questions/insurance_BA.txt"
+    if len(sys.argv) > 2:
+        filename = sys.argv[2]
+    else:
+        filename = input(
+            "Which file contains the standard questions to query the documents (e.g., docs/questions/ddd.txt)?"
+        )
     f = open(filename, "r")
     return f.readlines()
 
 
 def read_folder():
-    print(
-        "Which directory would you like to load files from (e.g., docs/examples/DDD)?"
-    )
-    folder = input("(enter for default)")
-    if folder == "":
-        folder = "docs/examples/MM/motor"
+    if len(sys.argv) > 1:
+        folder = sys.argv[1]
+    else:
+        folder = input(
+            "Which directory would you like to load files from (e.g., docs/examples/DDD)?"
+        )
     return folder
+
+
+def read_system_prompt():
+    if len(sys.argv) > 3:
+        f = open(sys.argv[3], "r")
+        system_prompt = f.readlines()
+    else:
+        system_prompt = """You are an assistant for question-answering tasks. Use
+        the following pieces of retrieved context to answer the question. If you don't know the answer, just say that 
+        you don't know."""
+    return system_prompt
 
 
 if __name__ == "__main__":
@@ -281,9 +284,10 @@ if __name__ == "__main__":
     # input "parameters"
     folder = read_folder()
     standard_questions = read_standard_questions()
+    system_prompt = read_system_prompt()
 
     # set up the chain
-    bot = ConversationalBusinessAnalystRag(folder, load_now=True)
+    bot = ConversationalBusinessAnalystRag(system_prompt, folder, load_now=True)
 
     # minimal UI
     ui = ChatUI("BA (RAG)", bot, standard_questions)
