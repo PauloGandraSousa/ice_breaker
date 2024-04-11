@@ -1,4 +1,6 @@
-What are the main concepts of DDD?
-Please explain which are cares should be taken when identifying your aggregates?
+Which are the main concepts of DDD?
+What is a bounded context?
+Please explain which cares should be taken when identifying your aggregates?
 What is the difference between an Entity and a Value Object?
 Can I share an Entity between two different aggregates?
+What is the relationship between DDD and microservices? How should I partition my domain into different microservices?
