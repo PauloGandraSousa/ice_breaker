@@ -1,8 +1,10 @@
 Please summarize the insurance product.
-What is the insurance object type for each product?
+What is the main insured object type (e.g., a person, a company, a house, a car, a boat) for each product?
 What type of risks are covered?
 Please tell me the name of all the different coverage packages (i.,e., commercial offers or modalities).
 Please tell me the name of all the different covers and to which coverage package they belong.
 Which are the mandatory and optional coverage of the package?
+What are the capital limits for each coverage?
 For each coverage please tell me it's name, capital limits, exclusions (if any), copayment (if any), deductible (if any) as well as any bonus/malus conditions and waiting period (if any)
 Can I insure my Cessna Citation Latitude?
+Which product would be an option to insure my Honda CBR 600?

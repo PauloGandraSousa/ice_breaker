@@ -69,16 +69,16 @@ class ChatUI:
                 self.ask_standard_questions()
             else:
                 self.__answer_and_print(question)
-                self.print_frame()
             question = self.__read_question()
         print("\nIt has been a pleasure helping you. Come back soon.")
         print("=== end of conversation ===")
 
     def print_frame(self):
-        print("+------------------------------------------------------+")
+        print("------------------------------------------------------\n")
 
     def __read_question(self):
         self.__count = self.__count + 1
+
         self.print_frame()
         question = input(f"Q {self.__count}: ")
         return question
@@ -88,12 +88,11 @@ class ChatUI:
         self.print_frame()
         print(f"Q {self.__count}. {question}")
         self.__answer_and_print(question)
-        self.print_frame()
 
     def ask_standard_questions(self):
-        print("<standard-questions>")
+        print("\n<standard-questions>\n")
         [self.ask(q) for q in self.standard_questions]
-        print("</standard-questions>")
+        print("\n</standard-questions>\n")
 
 
 class ConversationalBusinessAnalystRag:
