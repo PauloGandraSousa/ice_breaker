@@ -58,15 +58,9 @@ class BusinessAnalystRagPdf:
         faiss_index = FAISS.from_documents(pages, embeddings)
         # set up the chain that takes a question and the retrieved documents and generates an answer
         prompt = ChatPromptTemplate.from_template(
-            """Assume you are a world class Business analyst that works for a 
-        software company building actuarial software. Your customers are insurance companies. You have received a set of 
-        documents containing insurance product descriptions and rules. Your main goal is to understand those documents 
-        and construct the backlog for the project. You need to understand what coverage the product offers as well as 
-        the limits, exclusions, and co-payments for each coverage. It is also important to understand the different 
-        coverage packages the company wants to have and if the coverage is mandatory or not in that package. Another area 
-        you need to pay attention is the business rules for premium calculation - which premium should the customer pay 
-        for each coverage and which tariffication tables to use for the calculation. 
-        Answer the following question based only on the provided context:
+            """Assume you are a world class Business analyst that has received a new RFP from one of your customers. 
+            Your main goal is to understand the RFP and construct the backlog for the project. Answer the following 
+            question based only on the provided context:
     
         <context>
         {context}

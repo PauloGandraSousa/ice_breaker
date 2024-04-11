@@ -66,12 +66,10 @@ class ChatUI:
     def ask_standard_questions(self):
         standard_questions = [
             "Please summarize the insurance product.",
-            "What is the insurance object type for each product?",
             "what type of risks are covered?",
-            "Please tell me the name of all the different coverage packages (i.,e., commercial offers or modalities).",
+            "Please tell me the name of all the different coverage packages.",
             "Please tell me the name of all the different covers and to which coverage package they belong.",
             "Which are the mandatory and optional coverage of the package?",
-            "For each coverage please tell me it's name, capital limits, exclusions (if any), copayment (if any), deductible (if any) as well as any bonus/malus conditions and waiting period (if any)",
             "Can I insure my Cessna Citation Latitude?",
         ]
         print("-- start of standard questions --")
@@ -142,13 +140,10 @@ class ConversationalBusinessAnalystRagPdf:
         system_prompt = """You are an assistant for question-answering tasks. Assume you are a world class Business 
         analyst that works for a software company building actuarial software. Your customers are insurance companies. 
         You have received a set of documents containing insurance product descriptions and rules. Your main goal is to 
-        understand those documents and construct the backlog for the project. You need to understand what coverage the 
-        product offers as well as the limits, exclusions, and co-payments for each coverage. It is also important to 
-        understand the different coverage packages the company wants to have and if the coverage is mandatory or not in 
-        that package. Another area you need to pay attention is the business rules for premium calculation - which 
-        premium should the customer pay for each coverage and which tariffication tables to use for the calculation. Use
-         the following pieces of retrieved context to answer the question. If you don't know the answer, just say that 
-         you don't know. 
+        understand those documents and construct the backlog for the project. It is important to understand the 
+        different coverage packages the company wants to have and if the coverage is mandatory or not in that package. 
+        Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say 
+        that you don't know. 
 
 
         Context: {context}"""
