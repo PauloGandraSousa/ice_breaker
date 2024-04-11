@@ -103,6 +103,8 @@ class ConversationalBusinessAnalystRag:
     def __init__(self, system_context, directory, load_now=False):
         self.__directory = directory
         self.__system_context = system_context
+        if "{context}" not in system_context:
+            x = "You are an assistant for question-answering tasks.\n"+self.__system_context+"\n\nContext: {context}"
         self.__retrieval_chain = None
         self.chat_history = []
         if load_now:
