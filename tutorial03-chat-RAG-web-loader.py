@@ -1,5 +1,6 @@
 #
-# Conversational RAG from a web loader
+# LangChain tutorial
+# step 3: Conversational Bot with chat history and RAG
 #
 # https://python.langchain.com/docs/get_started/quickstart
 #

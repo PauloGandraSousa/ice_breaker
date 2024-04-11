@@ -1,5 +1,7 @@
 #
-# Conversational RAG from a directory with several PDF files
+# LangChain tutorial
+# step 7: Conversational Bot with minimal interactive UI, with chat history and RAG
+# (RAG from a directory with several PDF files)
 #
 # https://python.langchain.com/docs/get_started/quickstart
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf

@@ -1,5 +1,6 @@
 #
-# RAG from a directory with several PDF files
+# LangChain tutorial
+# step 5: Conversational Bot with chat history and RAG (RAG from a directory with several PDF files)
 #
 # https://python.langchain.com/docs/get_started/quickstart
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf
