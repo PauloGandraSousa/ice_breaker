@@ -63,7 +63,7 @@ class ChatUI:
         self.standard_questions = standard_questions
         self.bot = bot
         self.__count = 0
-        print(f"\n=== {self.title} ===\n")
+        print(f"\n=== {self.title} (using: {bot.model()}) ===\n")
 
     def __answer_and_print(self, question: string):
         print(f"A {self.__count}:")
@@ -226,9 +226,15 @@ class ConversationalBusinessAnalystRag:
         retrieval_chain = create_retrieval_chain(retriever_chain, document_chain)
         return retrieval_chain
 
+    def model(self) -> string:
+        model = os.getenv("LLM_MODEL")
+        if model is None:
+            model = "gpt-3.5-turbo"
+        return model
+
     def __set_up_rag_chain(self):
         # LLM
-        llm = ChatOpenAI(temperature=0)  # TODO ChatOpenAI(model="gpt-4", temperature=0)
+        llm = ChatOpenAI(model=self.model(), temperature=0)
         # load documents for RAG
         pages = self.__load_documents()
         # set up retriever
@@ -331,8 +337,10 @@ def read_system_prompt() -> string:
 
 
 if __name__ == "__main__":
-    print("LangChain! : ChatBot with RAG\n")
-    # print(os.getenv("TITLE"))
+    title = os.getenv("TITLE")
+    if title is None:
+        title = "LangChain! : ChatBot with RAG"
+    print(title, "\n")
 
     # input "parameters"
     folder = read_folder()
@@ -343,7 +351,7 @@ if __name__ == "__main__":
     bot = ConversationalBusinessAnalystRag(system_prompt, folder, load_now=True)
 
     # minimal UI
-    ui = ChatUI("BA (RAG)", bot, standard_questions)
+    ui = ChatUI(title, bot, standard_questions)
 
     # query the document
     ui.interactive()

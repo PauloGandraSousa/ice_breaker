@@ -16,7 +16,7 @@ This tutorial comprises different incremental steps:
 6. add a minimal UI class but keep the questions hardcoded (not interactive)
 7. interactive chatbot, i.e., the user can enter questions and receive the answer
 8. add loading multiple documents in different file formats. allows to define which folder to load, which system prompt to use as context and which set of predefined questions to use
-9. streaming the response from the LLM
+9. streaming the response from the LLM. allows to specify LLM model to use in `.env` file
 
 Running the script, e.g.
   
