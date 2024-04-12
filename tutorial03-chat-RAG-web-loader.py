@@ -2,6 +2,9 @@
 # LangChain tutorial
 # step 3: Conversational Bot with chat history and RAG
 #
+#
+# Based on the following tutorials:
+#
 # https://python.langchain.com/docs/get_started/quickstart
 #
 

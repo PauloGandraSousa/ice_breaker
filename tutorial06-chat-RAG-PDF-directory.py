@@ -2,6 +2,9 @@
 # LangChain tutorial
 # step 6: Conversational Bot with minimal UI, with chat history and RAG (RAG from a directory with several PDF files)
 #
+#
+# Based on the following tutorials:
+#
 # https://python.langchain.com/docs/get_started/quickstart
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf
 # https://python.langchain.com/docs/use_cases/question_answering/chat_history

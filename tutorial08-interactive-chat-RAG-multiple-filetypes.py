@@ -4,13 +4,18 @@
 #         RAG from a directory with several files of different formats
 #         folders, set of standard questions and system prompt can be entered as runtime program arguments
 #
+# Running the script, e.g.
+#
+#     tutorial08-interactive-chat-RAG-multiple-filetypes.py docs/examples/DDD docs/questions/ddd.txt docs/prompts/ddd.txt
+#
+#
+# Based on the following tutorials:
 #
 # https://python.langchain.com/docs/get_started/quickstart
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf
 # https://python.langchain.com/docs/integrations/document_loaders/microsoft_excel/
 # https://python.langchain.com/docs/use_cases/question_answering/chat_history
 # https://betterprogramming.pub/building-a-multi-document-reader-and-chatbot-with-langchain-and-chatgpt-d1864d47e339
-#
 #
 #
 # In order to use the 'unstructured' package a couple of system dependencies are needed,
@@ -185,7 +190,7 @@ class ConversationalBusinessAnalystRag:
 
     def __set_up_rag_chain(self):
         # LLM
-        llm = ChatOpenAI()  # TODO ChatOpenAI(model="gpt-4")
+        llm = ChatOpenAI(temperature=0)  # TODO ChatOpenAI(model="gpt-4", temperature=0)
         # load documents for RAG
         pages = self.__load_documents()
         # set up retriever
@@ -217,7 +222,7 @@ class ConversationalBusinessAnalystRag:
 
         # we split the data into chunks of 1,000 characters, with an overlap of 200 characters between the chunks,
         # which helps to give better results and contain the context of the information between chunks
-        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=10)
+        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         chunked_documents = text_splitter.split_documents(documents)
 
         return chunked_documents
@@ -288,7 +293,7 @@ def read_system_prompt() -> string:
 
 
 if __name__ == "__main__":
-    print("LangChain! : ChatBot with RAG from a directory\n")
+    print("LangChain! : ChatBot with RAG\n")
     # print(os.getenv("TITLE"))
 
     # input "parameters"

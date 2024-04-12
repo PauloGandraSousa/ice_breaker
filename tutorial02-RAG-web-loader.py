@@ -2,6 +2,9 @@
 # LangChain tutorial
 # step 2: RAG (Retrieval Augmented Generation) using a web loader
 #
+#
+# Based on the following tutorials:
+#
 # https://python.langchain.com/docs/get_started/quickstart
 #
 

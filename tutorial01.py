@@ -2,6 +2,9 @@
 # LangChain tutorial
 # step 1: just invoke a LLM
 #
+#
+# Based on the following tutorials:
+#
 # https://python.langchain.com/docs/get_started/quickstart
 #
 

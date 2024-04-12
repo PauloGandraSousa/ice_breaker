@@ -2,6 +2,9 @@
 # LangChain tutorial
 # step 4: Conversational Bot with chat history and RAG (RAG using a PDF)
 #
+#
+# Based on the following tutorials:
+#
 # https://python.langchain.com/docs/get_started/quickstart
 # https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf
 #
