@@ -16,14 +16,14 @@ This tutorial comprises different incremental steps:
 6. add a minimal UI class but keep the questions hardcoded (not interactive)
 7. interactive chatbot, i.e., the user can enter questions and receive the answer
 8. add loading multiple documents in different file formats. allows to define which folder to load, which system prompt to use as context and which set of predefined questions to use
+9. streaming the response from the LLM
 
 Running the script, e.g.
   
-    tutorial08-interactive-chat-RAG-multiple-filetypes.py docs/examples/DDD docs/questions/ddd.txt docs/prompts/ddd.txt 
+    tutorial09-streaming-chat.py docs/examples/DDD docs/questions/ddd.txt docs/prompts/ddd.txt 
 
 ## To do
 
-- streaming response https://python.langchain.com/docs/use_cases/question_answering/streaming/
 - tools 
   - https://python.langchain.com/docs/use_cases/tool_use/
   - https://python.langchain.com/docs/use_cases/chatbots/tool_usage/
