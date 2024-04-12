@@ -24,8 +24,11 @@
 #  you will need to add the location of the DLL files for these libraries into your PATH environment variable
 #
 import os
+import string
 import sys
 from dotenv import load_dotenv
+from langchain_core.document_loaders import BaseLoader
+from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
@@ -48,18 +51,18 @@ load_dotenv()
 
 
 class ChatUI:
-    def __init__(self, title, bot, standard_questions):
+    def __init__(self, title: string, bot, standard_questions: list[string]):
         self.title = title
         self.standard_questions = standard_questions
         self.bot = bot
         self.__count = 0
         print(f"\n=== {self.title} ===\n")
 
-    def __answer_and_print(self, question):
+    def __answer_and_print(self, question: string):
         answer = bot.chat(question)
         self.__ai_prompt(answer)
 
-    def __ai_prompt(self, answer):
+    def __ai_prompt(self, answer: string):
         print(f"A {self.__count}:")
         print(answer)
 
@@ -80,14 +83,14 @@ class ChatUI:
     def print_frame(self):
         print("------------------------------------------------------\n")
 
-    def __read_question(self):
+    def __read_question(self) -> string:
         self.__count = self.__count + 1
 
         self.print_frame()
         question = input(f"Q {self.__count}: ")
         return question
 
-    def ask(self, question):
+    def ask(self, question: string):
         self.__count = self.__count + 1
         self.print_frame()
         print(f"Q {self.__count}. {question}")
@@ -100,11 +103,16 @@ class ChatUI:
 
 
 class ConversationalBusinessAnalystRag:
-    def __init__(self, system_context, directory, load_now=False):
+    def __init__(self, system_context: string, directory: string, load_now=False):
         self.__directory = directory
-        self.__system_context = system_context
         if "{context}" not in system_context:
-            x = "You are an assistant for question-answering tasks.\n"+self.__system_context+"\n\nContext: {context}"
+            self.__system_context = (
+                "You are an assistant for question-answering tasks.\n"
+                + system_context
+                + "\n\nContext: {context}"
+            )
+        else:
+            self.__system_context = system_context
         self.__retrieval_chain = None
         self.chat_history = []
         if load_now:
@@ -177,7 +185,7 @@ class ConversationalBusinessAnalystRag:
 
     def __set_up_rag_chain(self):
         # LLM
-        llm = ChatOpenAI()
+        llm = ChatOpenAI()  # TODO ChatOpenAI(model="gpt-4")
         # load documents for RAG
         pages = self.__load_documents()
         # set up retriever
@@ -185,16 +193,16 @@ class ConversationalBusinessAnalystRag:
         # set up retrieval chain
         self.__retrieval_chain = self.__set_up_retrieval_chain(llm, retriever_chain)
 
-    def __is_initialized(self):
-        return self.__retrieval_chain != None
+    def __is_initialized(self) -> bool:
+        return self.__retrieval_chain is not None
 
-    def __load_documents_pdf_directory(self):
+    def __load_documents_pdf_directory(self) -> list[Document]:
         # load documents from a directory using a PDF loader
         loader = PyPDFDirectoryLoader(self.__directory)
         pages = loader.load()
         return pages
 
-    def __load_documents(self):
+    def __load_documents(self) -> list[Document]:
         # load additional documents from a directory using the appropriate loader
         documents = []
         for file in os.listdir(self.__directory):
@@ -214,7 +222,7 @@ class ConversationalBusinessAnalystRag:
 
         return chunked_documents
 
-    def __build_loader(self, file):
+    def __build_loader(self, file:string) -> None | BaseLoader:
         # we might need to check the performance and accuracy of each loader. The 'unstructured' package is able to load
         # all of these file types, so we might use just the 'UnstructuredFileLoader' loader for all file types.
         doc_path = os.path.join(self.__directory, file)
@@ -247,7 +255,7 @@ class ConversationalBusinessAnalystRag:
 #
 # main
 #
-def read_standard_questions():
+def read_standard_questions() -> list[string]:
     if len(sys.argv) > 2:
         filename = sys.argv[2]
     else:
@@ -258,32 +266,29 @@ def read_standard_questions():
     return f.readlines()
 
 
-def read_folder():
+def read_folder() -> string:
     if len(sys.argv) > 1:
-        folder = sys.argv[1]
+        return sys.argv[1]
     else:
-        folder = input(
-            "Which directory would you like to load files from (e.g., docs/examples/DDD)?"
-        )
-    return folder
+        return input("Which directory would you like to load files from (e.g., docs/examples/DDD)?")
 
 
-def read_system_prompt():
+def read_system_prompt() -> string:
     if len(sys.argv) > 3:
         f = open(sys.argv[3], "r")
-        system_prompt = f.readlines()
+        prompt = f.read()
     else:
-        system_prompt = """You are an assistant for question-answering tasks. Use
+        prompt = """You are an assistant for question-answering tasks. Use
         the following pieces of retrieved context to answer the question. If you don't know the answer, just say that 
         you don't know.
         
         
         Context: {context}"""
-    return system_prompt
+    return prompt
 
 
 if __name__ == "__main__":
-    print("LangChain! : ChatBot RAG from a directory of files")
+    print("LangChain! : ChatBot with RAG from a directory\n")
     # print(os.getenv("TITLE"))
 
     # input "parameters"
